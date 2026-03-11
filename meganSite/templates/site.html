@@ -1,0 +1,65 @@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<form method="POST">
+    <button type="submit" name = "button" value="1">Rainbow</button>
+    <button type="submit" name = "button" value="2">Fire</button>
+    <button type="submit" name = "button" value="3">Chase</button>
+</form>
+<div>
+    <canvas id="tempChart"></canvas>   
+    <style>
+    #tempChart {
+        height: 400 !important;
+    }
+    </style> 
+</div>
+<h1>hello</h1>
+
+<script type = "text/javascript">
+
+    var ctx = document.getElementById('tempChart').getContext('2d');
+
+    var tempChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Temperature',
+                data: [],
+                backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                borderColor: 'rgba(255, 99, 132, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            }
+        }
+    })
+
+    var intervalID = setInterval(updateValues,1000)
+    var now = new Date();
+    var c= now.getTime();
+    var temp;
+    function updateValues() {
+        $.getJSON('/_stuff',
+        function(data) {
+            $('result').text(data.result);
+            temp = data.result;
+            console.log(data.result);
+
+        });
+        c += 1
+        console.log(c);
+        console.log(temp);
+        tempChart.data.labels.push(c);
+        tempChart.data.datasets[0].data.push(temp);
+        tempChart.update();
+    }   
+</script>
