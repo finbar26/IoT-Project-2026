@@ -1,0 +1,39 @@
+body{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: #41436A;
+}
+#chart_container{
+    display: flex;
+    width: 80%;
+    height: 400px;
+    margin-top: 5%;
+    margin-bottom: 5%
+}
+#tempChart{
+    background-color: #984063;
+}
+
+
+#pattern_controls{
+    display: flex;
+    flex-direction: row;
+    justify-items: flex-end;
+    align-items: flex-end;
+}
+
+
+button{
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 15px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+}

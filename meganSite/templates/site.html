@@ -1,65 +1,111 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<form method="POST">
-    <button type="submit" name = "button" value="1">Rainbow</button>
-    <button type="submit" name = "button" value="2">Fire</button>
-    <button type="submit" name = "button" value="3">Chase</button>
-</form>
-<div>
-    <canvas id="tempChart"></canvas>   
-    <style>
-    #tempChart {
-        height: 400 !important;
-    }
-    </style> 
-</div>
-<h1>hello</h1>
-
-<script type = "text/javascript">
-
-    var ctx = document.getElementById('tempChart').getContext('2d');
-
-    var tempChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: [],
-            datasets: [{
-                label: 'Temperature',
-                data: [],
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                yAxes: [{
-                    ticks: {
-                        beginAtZero: true
-                    }
-                }]
-            }
+<head>
+    <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='format.css') }}">
+</head>
+<body></body>
+    <div id="chart_container">
+        <canvas id="tempChart"></canvas>   
+        <style>
+        #tempChart {
+            height: 400 !important;
         }
-    })
+        </style> 
+    </div>
 
-    var intervalID = setInterval(updateValues,1000)
-    var now = new Date();
-    var c= now.getTime();
-    var temp;
-    function updateValues() {
-        $.getJSON('/_stuff',
-        function(data) {
-            $('result').text(data.result);
-            temp = data.result;
-            console.log(data.result);
+    <script type = "text/javascript">
 
-        });
-        c += 1
-        console.log(c);
-        console.log(temp);
-        tempChart.data.labels.push(c);
-        tempChart.data.datasets[0].data.push(temp);
-        tempChart.update();
-    }   
-</script>
+        var ctx = document.getElementById('tempChart').getContext('2d');
+
+        var tempChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Temperature',
+                    data: [],
+                    backgroundColor: 'rgba(246, 70, 104, 0.2)',
+                    borderColor: 'rgba(246, 70, 104, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#FE9677' 
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#FE9677' 
+                        }
+                    },
+                    y: [{
+                        ticks: {
+                            color: '#FE9677', 
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        })
+
+        var intervalID = setInterval(updateValues,1000)
+        var now = new Date();
+        var c= now.getTime();
+        var temp;
+        function updateValues() {
+            $.getJSON('/get_data',
+            function(data) {
+                temp = data.temperature[data.temperature.length - 1];
+                c += 1
+                console.log(c);
+                console.log(temp);
+                tempChart.data.labels.push(c);
+                tempChart.data.datasets[0].data.push(temp);
+                tempChart.update();
+            });
+        }   
+    </script>
+    
+    <div id="pattern_controls">
+        <form onsubmit="event.preventDefault()">
+        <button onclick="sendLEDPattern(1)">Rainbow</button>
+        <button onclick="sendLEDPattern(2)">Blink</button>
+        <button onclick="sendLEDPattern(3)">Chase</button>
+    </form>
+        <h1>Current Pattern: None</h1>
+        <script> 
+            function sendLEDPattern(value){
+                let p = document.querySelector('h1');
+                let name;
+                switch(value) {
+                    case 1:
+                        name = "Rainbow";
+                        break;
+                    case 2:
+                        name = "Blink";
+                        break;
+                    case 3:
+                        name = "Chase";
+                        break;
+                }
+                p.textContent = `Current Pattern: ${name}`;
+                fetch('/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: `button=${value}`
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Success:', data);
+                })
+            }
+        </script>
+    </div>
+</body>

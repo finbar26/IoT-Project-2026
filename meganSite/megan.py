@@ -1,39 +1,72 @@
 from flask import Flask, render_template, request, jsonify
 import random
+import logging
+
+
+log = logging.getLogger('werkzeug')
+log.setLevel(logging.ERROR)
 
 
 app = Flask(__name__)
 
-ButtonPressed = 0
-@app.route('/',methods=['GET', 'POST'])
-def buttons():
-    if request.method == 'POST':
-        pressed = request.form.get("button")
-        match int(pressed):
-            case 1:
-                rainbowPattern()
-            case 2:
-                firePattern()
-            case 3:
-                chasePattern()
-        return render_template("site.html", ButtonPressed = pressed)
-    return render_template("site.html", ButtonPressed = None)
 
-@app.route('/_stuff')
-def stuff():
-    value = random.randint(0, 10)
-    return jsonify(result=value)
+ButtonPressed = 0
+currentPattern= 'None'
+
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    global currentPattern
+    returnMessage = ''
+    if request.method == 'POST':
+        value = request.form.get('button')
+        if value == '1':
+            rainbowPattern()
+            returnMessage = 'Rainbow Pattern Activated'
+            currentPattern = 'Rainbow'
+        elif value == '2':
+            blinkPattern()
+            returnMessage = 'Blink Pattern Activated'
+            currentPattern = 'Blink'
+        elif value == '3':
+            chasePattern()
+            returnMessage = 'Chase Pattern Activated'
+            currentPattern = 'Chase'
+        else:
+            returnMessage = 'No valid button pressed'
+    return render_template('site.html', message=returnMessage)
+
+data = {'temperature': []} # Example data
+
+@app.route('/pattern', methods=['GET'])
+def send_pattern():
+    return currentPattern
+
+@app.route('/data', methods=['POST'])
+def receive_data():
+    try: 
+        content = request.get_json()
+        temperature = content['temperature']
+        data['temperature'].append(temperature)
+        print(f'Received temperature: {temperature}')
+        return jsonify({'status': True})
+    except Exception as e:
+        return jsonify({'status': False})
+
+@app.route('/get_data')
+def get_data():
+    return jsonify(data)
+
 
 def rainbowPattern():
-    print("Rainbow Pattern Activated")
+    print('Rainbow Pattern Activated')
 
-def firePattern():
-    print("Fire Pattern Activated")
+def blinkPattern():
+    print('Blink Pattern Activated')
 
 def chasePattern():
-    print("Chase Pattern Activated")
+    print('Chase Pattern Activated')
 
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000, debug=True)
