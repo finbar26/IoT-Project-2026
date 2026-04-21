@@ -3,8 +3,6 @@ import random
 import logging
 
 
-log = logging.getLogger('werkzeug')
-log.setLevel(logging.ERROR)
 
 
 app = Flask(__name__)

@@ -3,30 +3,32 @@ body{
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background-color: #41436A;
+    background-color: white;
+    color: #41436A;
 }
 #chart_container{
     display: flex;
     width: 80%;
     height: 400px;
     margin-top: 5%;
-    margin-bottom: 5%
 }
 #tempChart{
-    background-color: #984063;
+    background-color: #41436A;
+    color: white;
+    border-radius: 10px;
 }
 
 
 #pattern_controls{
     display: flex;
-    flex-direction: row;
-    justify-items: flex-end;
-    align-items: flex-end;
+    flex-direction: column;
+    align-items: center;
+    gap: 0px;
 }
 
 
 button{
-    background-color: #4CAF50;
+    background-color: #af4c96;
     border: none;
     color: white;
     padding: 15px 32px;
@@ -36,4 +38,5 @@ button{
     font-size: 16px;
     margin: 4px 2px;
     cursor: pointer;
+    border-radius: 10px;
 }

@@ -25,47 +25,43 @@
                 datasets: [{
                     label: 'Temperature',
                     data: [],
-                    backgroundColor: 'rgba(246, 70, 104, 0.2)',
-                    borderColor: 'rgba(246, 70, 104, 1)',
+                    backgroundColor: '#af4c96',
+                    borderColor: '#af4c96',
                     borderWidth: 1
                 }]
             },
             options: {
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: '#FE9677' 
-                        }
-                    }
-                },
                 scales: {
-                    x: {
+                    xAxes: [{
                         ticks: {
-                            color: '#FE9677' 
+                            fontColor: 'white'
                         }
-                    },
-                    y: [{
+                    }],
+                    yAxes: [{
                         ticks: {
-                            color: '#FE9677', 
-                            beginAtZero: true
+                            fontColor: 'white'
                         }
                     }]
                 }
+
             }
         })
 
         var intervalID = setInterval(updateValues,1000)
-        var now = new Date();
-        var c= now.getTime();
+        
         var temp;
         function updateValues() {
             $.getJSON('/get_data',
             function(data) {
                 temp = data.temperature[data.temperature.length - 1];
-                c += 1
-                console.log(c);
-                console.log(temp);
-                tempChart.data.labels.push(c);
+                
+                var now = new Date();
+                var h = now.getHours().toString().padStart(2, '0');
+                var m = now.getMinutes().toString().padStart(2, '0');
+                var s = now.getSeconds().toString().padStart(2, '0');
+                var time = `${h}:${m}:${s}`;
+
+                tempChart.data.labels.push(time);
                 tempChart.data.datasets[0].data.push(temp);
                 tempChart.update();
             });
@@ -73,15 +69,17 @@
     </script>
     
     <div id="pattern_controls">
-        <form onsubmit="event.preventDefault()">
-        <button onclick="sendLEDPattern(1)">Rainbow</button>
-        <button onclick="sendLEDPattern(2)">Blink</button>
-        <button onclick="sendLEDPattern(3)">Chase</button>
-    </form>
-        <h1>Current Pattern: None</h1>
+        <div class = "buttons">
+            <button onclick="sendLEDPattern(1)">Rainbow</button>
+            <button onclick="sendLEDPattern(2)">Blink</button>
+            <button onclick="sendLEDPattern(3)">Chase</button>
+        </div>  
+        <h2>Current Pattern: None</h2>
+        <h2>Temperature Control Mode: Inactive</h2>
+        <h2>Current Delay Time: 200ms</h2>
         <script> 
             function sendLEDPattern(value){
-                let p = document.querySelector('h1');
+                let p = document.querySelector('h2');
                 let name;
                 switch(value) {
                     case 1:
