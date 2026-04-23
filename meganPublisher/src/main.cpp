@@ -252,6 +252,18 @@ void getPattern() {
     if (buttonResponse == "Chase") {
       chase_sequence();
     }
+    if (buttonResponse == "Off") {
+      all_off();
+    }
+    if (buttonResponse == "Red") {
+      red();
+    }
+    if (buttonResponse == "Yellow") {
+      yellow();
+    }
+    if (buttonResponse == "Green") {
+      green();
+    }
   }
 
   http.end();

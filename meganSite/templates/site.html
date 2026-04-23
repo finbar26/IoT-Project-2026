@@ -20,6 +20,10 @@
             <button onclick="sendLEDPattern(1)">Rainbow</button>
             <button onclick="sendLEDPattern(2)">Blink</button>
             <button onclick="sendLEDPattern(3)">Chase</button>
+            <button onclick="sendLEDPattern(4)">Off</button>
+            <button onclick="sendLEDPattern(5)">Red</button>
+            <button onclick="sendLEDPattern(6)">Yellow</button>
+            <button onclick="sendLEDPattern(7)">Green</button>
         </div>  
         <h2>Current Pattern: None</h2>
         <h2 id="tempControlLabel">Temperature Control Mode: false</h2>
@@ -103,6 +107,18 @@
                         break;
                     case 3:
                         name = "Chase";
+                        break;
+                    case 4:
+                        name = "Off";
+                        break;
+                    case 5:
+                        name = "Red";
+                        break;
+                    case 6:
+                        name = "Yellow";
+                        break;
+                    case 7:
+                        name = "Green";
                         break;
                 }
                 p.textContent = `Current Pattern: ${name}`;
