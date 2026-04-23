@@ -246,22 +246,22 @@ void getPattern() {
     if (buttonResponse == "Rainbow") { 
       rainbow();
     }
-    if (buttonResponse == "Blink") {
+    else if (buttonResponse == "Blink") {
       blink();
     }
-    if (buttonResponse == "Chase") {
+    else if (buttonResponse == "Chase") {
       chase_sequence();
     }
-    if (buttonResponse == "Off") {
+    else if (buttonResponse == "Off") {
       all_off();
     }
-    if (buttonResponse == "Red") {
+    else if (buttonResponse == "Red") {
       red();
     }
-    if (buttonResponse == "Yellow") {
+    else if (buttonResponse == "Yellow") {
       yellow();
     }
-    if (buttonResponse == "Green") {
+    else if (buttonResponse == "Green") {
       green();
     }
   }

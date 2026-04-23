@@ -18,17 +18,33 @@ def index():
     if request.method == 'POST':
         value = request.form.get('button')
         if value == '1':
-            rainbowPattern()
+            print('Rainbow Pattern Activated')
             returnMessage = 'Rainbow Pattern Activated'
             currentPattern = 'Rainbow'
         elif value == '2':
-            blinkPattern()
+            print('Blink Pattern Activated')
             returnMessage = 'Blink Pattern Activated'
             currentPattern = 'Blink'
         elif value == '3':
-            chasePattern()
+            print('Chase Pattern Activated')
             returnMessage = 'Chase Pattern Activated'
             currentPattern = 'Chase'
+        elif value == '4':
+            print('LEDs turned off')
+            returnMessage = 'LEDs turned off'
+            currentPattern = 'Off'
+        elif value == '5':
+            print('Red Pattern Activated')
+            returnMessage = 'Red Pattern Activated'
+            currentPattern = 'Red'
+        elif value == '6':
+            print('Yellow Pattern Activated')
+            returnMessage = 'Yellow Pattern Activated'
+            currentPattern = 'Yellow'
+        elif value == '7':
+            print('Green Pattern Activated')
+            returnMessage = 'Green Pattern Activated'
+            currentPattern = 'Green'
         else:
             returnMessage = 'No valid button pressed'
     return render_template('site.html', message=returnMessage)
@@ -60,17 +76,6 @@ def receive_data():
 @app.route('/get_data')
 def get_data():
     return jsonify(data)
-
-
-def rainbowPattern():
-    print('Rainbow Pattern Activated')
-
-def blinkPattern():
-    print('Blink Pattern Activated')
-
-def chasePattern():
-    print('Chase Pattern Activated')
-
 
 
 if __name__ == '__main__':
