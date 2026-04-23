@@ -14,7 +14,17 @@
         </style> 
     </div>
 
-    <script type = "text/javascript">
+    
+    <div id="pattern_controls">
+        <div class = "buttons">
+            <button onclick="sendLEDPattern(1)">Rainbow</button>
+            <button onclick="sendLEDPattern(2)">Blink</button>
+            <button onclick="sendLEDPattern(3)">Chase</button>
+        </div>  
+        <h2>Current Pattern: None</h2>
+        <h2 id="tempControlLabel">Temperature Control Mode: false</h2>
+        <h2 id="delayTimeLabel">Current Delay Time: 200ms</h2>
+        <script type = "text/javascript">
 
         var ctx = document.getElementById('tempChart').getContext('2d');
 
@@ -59,29 +69,27 @@
             $.getJSON('/get_data',
             function(data) {
                 temp = data.temperature[data.temperature.length - 1];
+                tempControlMode = data.useTempControl;
+                delayTime = data.delayTime;
                 
+                document.getElementById('tempControlLabel').textContent = `Temperature Control Mode: ${tempControlMode}`;
+                document.getElementById('delayTimeLabel').textContent = `Current Delay Time: ${delayTime}ms`;
+
                 var now = new Date();
                 var h = now.getHours().toString().padStart(2, '0');
                 var m = now.getMinutes().toString().padStart(2, '0');
                 var s = now.getSeconds().toString().padStart(2, '0');
                 var time = `${h}:${m}:${s}`;
-
+                
                 tempChart.data.labels.push(time);
                 tempChart.data.datasets[0].data.push(temp);
                 tempChart.update();
+
             });
         }   
-    </script>
-    
-    <div id="pattern_controls">
-        <div class = "buttons">
-            <button onclick="sendLEDPattern(1)">Rainbow</button>
-            <button onclick="sendLEDPattern(2)">Blink</button>
-            <button onclick="sendLEDPattern(3)">Chase</button>
-        </div>  
-        <h2>Current Pattern: None</h2>
-        <h2>Temperature Control Mode: {temperatureControlMode}</h2>
-        <h2>Current Delay Time: {delayTime}ms</h2>
+        </script>
+
+
         <script> 
             function sendLEDPattern(value){
                 let p = document.querySelector('h2');

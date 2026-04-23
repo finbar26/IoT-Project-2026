@@ -46,7 +46,7 @@ def receive_data():
     try: 
         content = request.get_json()
         temperature = content['temperature']
-        usedTempControl = content['usedTempControl']
+        useTempControl = content['useTempControl']
         delayTime = content['delayTime']
         data['temperature'].append(temperature)
         print(f'Received temperature: {temperature}')
