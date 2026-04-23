@@ -50,6 +50,8 @@ def receive_data():
         delayTime = content['delayTime']
         data['temperature'].append(temperature)
         print(f'Received temperature: {temperature}')
+        print(f'Temperature Control Mode: {useTempControl}')
+        print(f'Delay Time: {delayTime}ms')
         return jsonify({'status': True})
     except Exception as e:
         return jsonify({'status': False})
