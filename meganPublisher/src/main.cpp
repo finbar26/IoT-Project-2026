@@ -38,7 +38,8 @@ bool button_control = false;
 
 // Time delay between each LED change (in milliseconds)
 // can be changed
-int delay_time = 200;
+int initial_delay_time = 200;
+int delay_time = initial_delay_time;
 
 //define methods
 void all_off();
@@ -67,27 +68,23 @@ void all_off() {
 
 //just red
 void red() {
-  Serial.printf(" red ");
   digitalWrite(ledPins[0], HIGH);
   digitalWrite(ledPins[1], HIGH);
 }
 
 //just yellow
 void yellow() {
-  Serial.printf(" yellow ");
   digitalWrite(ledPins[2], HIGH);
   digitalWrite(ledPins[3], HIGH);
 }
 
 //just green
 void green() {
-  Serial.printf(" green ");
   digitalWrite(ledPins[4], HIGH);
   digitalWrite(ledPins[5], HIGH);
 }
 
 void chase_sequence() {
-  Serial.printf("chase sequence\n");
   // Turn on each LED in sequence
   for (int i = 0; i < NUM_LEDS; i++) {
     digitalWrite(ledPins[i], HIGH); // Turn on the LED
@@ -105,7 +102,6 @@ void chase_sequence() {
 
 //red then yellow then green then off
 void rainbow() {
-  Serial.printf("rainbow\n");
   red();
   delay(delay_time);
   yellow();
@@ -117,7 +113,6 @@ void rainbow() {
 
 //all lights flash at same time
 void blink() {
-  Serial.printf("blink\n");
   for (int i = 0; i < NUM_LEDS; i++) {
       digitalWrite(ledPins[i], HIGH);
     }
@@ -141,16 +136,12 @@ void tempControl() {
   Serial.print(current_temp);
   Serial.printf (" degrees C\n");
 
-  delay_time = delay_time * (current_temp * (1 / initial_temp * 2));
-
-  // if (current_temp > initial_temp) {
-  //   delay_time = 90;
-  //   Serial.printf("higher temp\n");
-  // } else if (current_temp < initial_temp) {
-  //   delay_time = 350;
-  //   Serial.printf("lower temp\n");
-  // }
-  // blink();
+  float delay_coeff = ((current_temp / initial_temp));
+  Serial.print("initial temp: ");
+  Serial.println(initial_temp);
+  Serial.print("delay coeff: ");
+  Serial.println(delay_coeff);
+  delay_time = initial_delay_time * delay_coeff;
 }
 
 //used to change led mode via button
@@ -332,22 +323,25 @@ void loop() {
     tempControl();
   }
 
+  if(!useTempControl) {
+    delay_time = initial_delay_time;
+  }
+
   //CHANGE IP
   //beggining connection to website
   http.begin(client, "http://192.168.240.251:5000/send_pattern");
   sendTemp();
   getPattern();
-  chase_sequence();
 
-  Serial.print("broadcast IP address: ");
-  Serial.println(WiFi.broadcastIP());
-  Serial.print("dns IP address: ");
-  Serial.println(WiFi.dnsIP());
-  Serial.print("gateway IP address: "); 
-  //amelia_hotspot wifi ipv4
-  Serial.println(WiFi.gatewayIP());
-  Serial.print("Mode: ");
-  Serial.println(WiFi.getMode());
+  // Serial.print("broadcast IP address: ");
+  // Serial.println(WiFi.broadcastIP());
+  // Serial.print("dns IP address: ");
+  // Serial.println(WiFi.dnsIP());
+  // Serial.print("gateway IP address: "); 
+  // //amelia_hotspot wifi ipv4
+  // Serial.println(WiFi.gatewayIP());
+  // Serial.print("Mode: ");
+  // Serial.println(WiFi.getMode());
 
   Serial.print("delay: ");
   Serial.println(delay_time);
