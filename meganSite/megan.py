@@ -44,15 +44,15 @@ def send_pattern():
 def receive_data():
     try: 
         content = request.get_json()
-        temperature = content['temperature']
-        useTempControl = content['useTempControl']
-        delayTime = content['delayTime']
-        data['temperature'].append(temperature)
-        data['useTempControl'] = useTempControl
-        data['delayTime'] = delayTime
-        print(f'Received temperature: {temperature}')
-        print(f'Temperature Control Mode: {useTempControl}')
-        print(f'Delay Time: {delayTime}ms')
+        data['temperature'].append(content['temperature'])
+        if(content['useTempControl'] == 1):
+            data['useTempControl'] = True
+        else:
+            data['useTempControl'] = False
+        data['delayTime'] = content['delayTime']
+        print(f'Received temperature: {content["temperature"]}')
+        print(f'Temperature Control Mode: {content["useTempControl"]}')
+        print(f'Delay Time: {content["delayTime"]}ms')
         return jsonify({'status': True})
     except Exception as e:
         return jsonify({'status': False})
