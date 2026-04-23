@@ -11,6 +11,7 @@
 
 const char* SSID = "amelia_hotspot";
 const char* Password = "megan2003";
+
 //button pin
 const int BUTTON_PIN = 13;
 // Array of LED pins
@@ -22,6 +23,7 @@ float volts;    // variable for storing voltage
 #define VREF 3.3
 #define ADC_MAX 4095.0
 float initial_temp;
+bool useTempControl = false;
 
 //these are all used for the button mode
 int mode;
@@ -46,7 +48,7 @@ void green();
 void chase_sequence();
 void rainbow();
 void blink();
-void controlled_by_temp(float initial_temp);
+void tempControl();
 int check_mode_button(int prev_mode);
 void controlled_by_button();
 void sendTemp();
@@ -105,13 +107,12 @@ void chase_sequence() {
 void rainbow() {
   Serial.printf("rainbow\n");
   red();
-  delay(delay_time * 5);
-  yellow();
-  delay(delay_time * 5);
-  green();
-  delay(delay_time * 5);
-  all_off();
   delay(delay_time);
+  yellow();
+  delay(delay_time);
+  green();
+  delay(delay_time);
+  all_off();
 }
 
 //all lights flash at same time
@@ -126,31 +127,30 @@ void blink() {
     for (int i = 0; i < NUM_LEDS; i++) {
       digitalWrite(ledPins[i], LOW);
     }
-
-    delay(delay_time);
 }
 
 // this makes the lights blink faster if temp is higher than
 // initial temp. can be changed to different modes
-void controlled_by_temp(float initial_temp) {
+void tempControl() {
   int temp_val = analogRead(temp_pin);
-  volts = temp_val * VREF /ADC_MAX ;
+  volts = temp_val * VREF / ADC_MAX ;
   volts = temp_val / 1023.0;
 
-  float temp_celcius = (volts - 0.5) * 100.0 ;
+  float current_temp = (volts - 0.5) * 100.0 ;
   Serial.printf(" Temperature is:   ");
-  Serial.print(temp_celcius);
+  Serial.print(current_temp);
   Serial.printf (" degrees C\n");
 
-  if (temp_celcius > initial_temp) {
-    delay_time = 90;
-    Serial.printf("higher temp\n");
-  } else if (temp_celcius < initial_temp) {
-    delay_time = 350;
-    Serial.printf("lower temp\n");
-  }
-  blink();
-  delay(delay_time); 
+  delay_time = delay_time * (current_temp * (1 / initial_temp * 2));
+
+  // if (current_temp > initial_temp) {
+  //   delay_time = 90;
+  //   Serial.printf("higher temp\n");
+  // } else if (current_temp < initial_temp) {
+  //   delay_time = 350;
+  //   Serial.printf("lower temp\n");
+  // }
+  // blink();
 }
 
 //used to change led mode via button
@@ -216,7 +216,8 @@ void controlled_by_button() {
 }
 void sendTemp() {
   HTTPClient http;
-  http.begin("http://192.168.240.235:5000/data");
+  //CHANGE IP
+  http.begin("http://192.168.240.251:5000/data");
   http.addHeader("Content-Type", "application/json");
 
   //read temperature from sensor
@@ -234,7 +235,8 @@ void sendTemp() {
 
 void getPattern() {
   HTTPClient http;
-  http.begin("http://192.168.240.235:5000/pattern");
+  //CHANGE IP
+  http.begin("http://192.168.240.251:5000/pattern");
   // This function can be used to get the current pattern from the server
   int code = http.GET();
   //interpret response from website
@@ -263,8 +265,9 @@ void setup() {
     Serial.print(".");
     delay(500);
   }
+  //CHANGE IP
   Serial.println("Connected to WiFi");
-  Serial.println("Server Address: http://192.168.240.235:5000/data");
+  Serial.println("Server Address: http://192.168.240.251:5000/data");
   
   
   // Initialize each pin as an output
@@ -286,7 +289,7 @@ void setup() {
 
   initial_temp = (volts - 0.5) * 100.0 ;
 
-  //this sequence lets you know the code is running
+  //this LED sequence lets you know the code is running
   //leds go red -> yellow -> green then off before loop starts
   red();
   delay(delay_time);
@@ -297,6 +300,8 @@ void setup() {
   all_off();
   delay(delay_time);
 
+  Serial.print("Device IP address: ");
+  Serial.println(WiFi.localIP());
 
 }
 
@@ -306,12 +311,34 @@ void loop() {
   WiFiClient client;
   HTTPClient http;
 
+  if(digitalRead(BUTTON_PIN) == LOW) {
+    Serial.printf("button is pressed");
+    useTempControl = !useTempControl;
+  }
+
+  if(useTempControl) {
+    tempControl();
+  }
+
+  //CHANGE IP
   //beggining connection to website
-  http.begin(client, "http://192.168.240.235:5000/send_pattern");
+  http.begin(client, "http://192.168.240.251:5000/send_pattern");
   sendTemp();
   getPattern();
+  chase_sequence();
 
-  
-  delay(2000);
+  Serial.print("broadcast IP address: ");
+  Serial.println(WiFi.broadcastIP());
+  Serial.print("dns IP address: ");
+  Serial.println(WiFi.dnsIP());
+  Serial.print("gateway IP address: "); 
+  //amelia_hotspot wifi ipv4
+  Serial.println(WiFi.gatewayIP());
+  Serial.print("Mode: ");
+  Serial.println(WiFi.getMode());
+
+  Serial.print("delay: ");
+  Serial.println(delay_time);
+  delay(delay_time);
 
 }
