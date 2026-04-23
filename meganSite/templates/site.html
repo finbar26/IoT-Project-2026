@@ -31,6 +31,11 @@
                 }]
             },
             options: {
+                legend: {
+                        labels: {
+                            fontColor: 'white'
+                        }
+                },
                 scales: {
                     xAxes: [{
                         ticks: {
@@ -75,8 +80,8 @@
             <button onclick="sendLEDPattern(3)">Chase</button>
         </div>  
         <h2>Current Pattern: None</h2>
-        <h2>Temperature Control Mode: Inactive</h2>
-        <h2>Current Delay Time: 200ms</h2>
+        <h2>Temperature Control Mode: {temperatureControlMode}</h2>
+        <h2>Current Delay Time: {delayTime}ms</h2>
         <script> 
             function sendLEDPattern(value){
                 let p = document.querySelector('h2');

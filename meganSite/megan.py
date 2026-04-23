@@ -33,7 +33,9 @@ def index():
             returnMessage = 'No valid button pressed'
     return render_template('site.html', message=returnMessage)
 
-data = {'temperature': []} # Example data
+data = {'temperature': []} # Example data#
+temperatureControlMode = False
+delayTime = 200
 
 @app.route('/pattern', methods=['GET'])
 def send_pattern():
@@ -44,6 +46,8 @@ def receive_data():
     try: 
         content = request.get_json()
         temperature = content['temperature']
+        usedTempControl = content['usedTempControl']
+        delayTime = content['delayTime']
         data['temperature'].append(temperature)
         print(f'Received temperature: {temperature}')
         return jsonify({'status': True})

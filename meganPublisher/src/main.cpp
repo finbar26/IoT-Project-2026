@@ -9,8 +9,8 @@
 #define ADC_MAX 4095.0
 #define VREF 3.3
 
-const char* SSID = "Finbar's S23";
-const char* Password = "finbar26";
+const char* SSID = "amelia_hotspot";
+const char* Password = "megan2003";
 //button pin
 const int BUTTON_PIN = 13;
 // Array of LED pins
@@ -216,7 +216,7 @@ void controlled_by_button() {
 }
 void sendTemp() {
   HTTPClient http;
-  http.begin("http://172.25.104.235:5000/data");
+  http.begin("http://192.168.240.235:5000/data");
   http.addHeader("Content-Type", "application/json");
 
   //read temperature from sensor
@@ -227,14 +227,14 @@ void sendTemp() {
 
   //send temperature to website
   http.addHeader("Content-Type", "application/json");
-  int httpResponseCode = http.POST("{\"temperature\": " + String(temperature) + "}");
+  int httpResponseCode = http.POST("{\"temperature\": " + String(temperature) + ", \"useTempControl\": " + String(useTempControl) + ", \"delayTime\": " + String(delay_time) + "}");
 
   http.end();
 }
 
 void getPattern() {
   HTTPClient http;
-  http.begin("http://172.25.104.235:5000/pattern");
+  http.begin("http://192.168.240.235:5000/pattern");
   // This function can be used to get the current pattern from the server
   int code = http.GET();
   //interpret response from website
@@ -264,7 +264,7 @@ void setup() {
     delay(500);
   }
   Serial.println("Connected to WiFi");
-  Serial.println("Server Address: http://172.25.104.235:5000/data");
+  Serial.println("Server Address: http://192.168.240.235:5000/data");
   
   
   // Initialize each pin as an output
@@ -307,7 +307,7 @@ void loop() {
   HTTPClient http;
 
   //beggining connection to website
-  http.begin(client, "http://172.25.104.235:5000/send_pattern");
+  http.begin(client, "http://192.168.240.235:5000/send_pattern");
   sendTemp();
   getPattern();
 
