@@ -33,9 +33,8 @@ def index():
             returnMessage = 'No valid button pressed'
     return render_template('site.html', message=returnMessage)
 
-data = {'temperature': []} # Example data#
-temperatureControlMode = False
-delayTime = 200
+data = {'temperature': [], 'useTempControl': False, 'delayTime': 200} # Example data#
+
 
 @app.route('/pattern', methods=['GET'])
 def send_pattern():
@@ -49,6 +48,8 @@ def receive_data():
         useTempControl = content['useTempControl']
         delayTime = content['delayTime']
         data['temperature'].append(temperature)
+        data['useTempControl'] = useTempControl
+        data['delayTime'] = delayTime
         print(f'Received temperature: {temperature}')
         print(f'Temperature Control Mode: {useTempControl}')
         print(f'Delay Time: {delayTime}ms')
