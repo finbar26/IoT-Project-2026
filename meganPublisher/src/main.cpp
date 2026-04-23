@@ -137,10 +137,6 @@ void tempControl() {
   Serial.printf (" degrees C\n");
 
   float delay_coeff = ((current_temp / initial_temp));
-  Serial.print("initial temp: ");
-  Serial.println(initial_temp);
-  Serial.print("delay coeff: ");
-  Serial.println(delay_coeff);
   delay_time = initial_delay_time * delay_coeff;
 }
 
@@ -216,6 +212,8 @@ void sendTemp() {
   float voltage = adcValue * VREF / ADC_MAX;
   float tempC = (voltage - 0.5) * 100.0;
   float temperature = tempC;
+  Serial.print("Site temp: ");
+  Serial.println(temperature);
 
   //send temperature to website
   http.addHeader("Content-Type", "application/json");
