@@ -16,44 +16,33 @@ const char* IpAddress =
 
 //button pin
 const int BUTTON_PIN = 13;
-// Array of LED pins
+//array of LED pins
 const int ledPins[NUM_LEDS] = {5, 6, 9, 10, 11, 12};
 
 //temp variables
-const int temp_pin = 16;     //analog input pin constant - A2 on board
-float volts;    // variable for storing voltage
+const int tempPin = 16; //analog input pin constant - A2 on board
+float volts;  // variable for storing voltage
 #define VREF 3.3
 #define ADC_MAX 4095.0
-float initial_temp;
+float initialTemp;
 bool useTempControl = false;
 
-//these are all used for the button mode
-int mode;
-int prev_mode = 0;
-int button_state;
-int last_button_state = 1;
-unsigned long last_debounce_millis = 0;
-unsigned long prev_millis = 0;
-const unsigned long debounce_delay = 10;
-//use this to toggle wether the leds are controlled by button or not
-bool button_control = false;
+//initial button mode
+int mode = 0;
 
-// Time delay between each LED change (in milliseconds)
-// can be changed
-int initial_delay_time = 200;
-int delay_time = initial_delay_time;
+//time delay between each LED change (in milliseconds)
+int initDelay = 200;
+int delayTime = initDelay;
 
 //define methods
-void all_off();
+void allOff();
 void red();
 void yellow();
 void green();
-void chase_sequence();
+void chaseSequence();
 void rainbow();
 void blink();
 void tempControl();
-int check_mode_button(int prev_mode);
-void controlled_by_button();
 void sendTemp();
 void getPattern();
 
@@ -62,9 +51,9 @@ void getPattern();
 //LIGHT PATTERN MODES 
 
 //turns all leds off
-void all_off() {
+void allOff() {
   for (int i = 0; i < NUM_LEDS; i++) {
-    digitalWrite(ledPins[i], LOW); // Ensure all LEDs are off initially
+    digitalWrite(ledPins[i], LOW);
   }
 }
 
@@ -86,31 +75,31 @@ void green() {
   digitalWrite(ledPins[5], HIGH);
 }
 
-void chase_sequence() {
-  // Turn on each LED in sequence
+void chaseSequence() {
+  //turn on each LED in sequence
   for (int i = 0; i < NUM_LEDS; i++) {
-    digitalWrite(ledPins[i], HIGH); // Turn on the LED
-    delay(delay_time);               // Wait
-    digitalWrite(ledPins[i], LOW);  // Turn off the LED
+    digitalWrite(ledPins[i], HIGH); //turn on the LED
+    delay(delayTime);               //wait
+    digitalWrite(ledPins[i], LOW);  //turn off the LED
   }
 
-  // Turn on each LED in reverse sequence
+  //turn on each LED in reverse sequence
   for (int i = NUM_LEDS - 1; i >= 0; i--) {
-    digitalWrite(ledPins[i], HIGH); // Turn on the LED
-    delay(delay_time);               // Wait
-    digitalWrite(ledPins[i], LOW);  // Turn off the LED
+    digitalWrite(ledPins[i], HIGH); //turn on the LED
+    delay(delayTime);               //wait
+    digitalWrite(ledPins[i], LOW);  //turn off the LED
   }
 }
 
-//red then yellow then green then off
+//red then yellow then green then all off
 void rainbow() {
   red();
-  delay(delay_time);
+  delay(delayTime);
   yellow();
-  delay(delay_time);
+  delay(delayTime);
   green();
-  delay(delay_time);
-  all_off();
+  delay(delayTime);
+  allOff();
 }
 
 //all lights flash at same time
@@ -119,90 +108,30 @@ void blink() {
       digitalWrite(ledPins[i], HIGH);
     }
 
-    delay(delay_time);
+    delay(delayTime);
 
     for (int i = 0; i < NUM_LEDS; i++) {
       digitalWrite(ledPins[i], LOW);
     }
 }
 
-// this makes the lights blink faster if temp is higher than
-// initial temp. can be changed to different modes
+//changes the delay time between each LED change based on the 
+//temperature read from the sensor (higher temp = faster changes)
 void tempControl() {
-  int temp_val = analogRead(temp_pin);
-  volts = temp_val * VREF / ADC_MAX ;
-  volts = temp_val / 1023.0;
+  int tempValue = analogRead(tempPin);
+  volts = tempValue * VREF / ADC_MAX ;
+  volts = tempValue / 1023.0;
 
-  float current_temp = (volts - 0.5) * 100.0 ;
+  float currentTemp = (volts - 0.5) * 100.0 ;
   Serial.printf(" Temperature is:   ");
-  Serial.print(current_temp);
+  Serial.print(currentTemp);
   Serial.printf (" degrees C\n");
 
-  float delay_coeff = ((current_temp / initial_temp));
-  delay_time = initial_delay_time * delay_coeff;
+  float delayCoeff = ((currentTemp / initialTemp));
+  delayTime = initDelay * delayCoeff;
 }
 
-//used to change led mode via button
-//have to hold the button down for a while and it doesnt always respond but its not a requirement anyway
-int check_mode_button(int prevMode) {
-  int button_reading = digitalRead(BUTTON_PIN);
-  if (button_reading != last_button_state) {
-    last_debounce_millis = millis();
-  }
-  if ((millis() - last_debounce_millis) > debounce_delay) {
-    if (button_reading != button_state) {
-      button_state = button_reading;
-      if (button_state == LOW) {
-        int last_mode = prev_mode;
-        Serial.print("\n\nlast mode: ");
-        Serial.println(last_mode);
-        mode++;
-        Serial.print("button pressed: ");
-        Serial.print("current mode = ");
-        Serial.println(mode);
-        Serial.println();
-      }
-      if (mode >= 7) mode = 0;
-      else if (mode == 0) Serial.println("\nreset to mode 0");
-      all_off();
-    }
-  }
-  last_button_state = button_reading;
-  return mode;
-}
-
-//method to run in loop to controll the led mode by physical button
-void controlled_by_button() {
-  delay(delay_time * 3);
-  int current_mode = check_mode_button(prev_mode);
-
-  switch (current_mode) {
-    case 0:
-      all_off();
-      break;
-    case 1:
-      chase_sequence();
-      break;
-    case 2:
-      rainbow();
-      break;
-    case 3:
-      blink();
-      break;
-    case 4:
-      red();
-      break;
-    case 5:
-      yellow();
-      break;
-    case 6:
-      green();
-      break;
-    default:
-      break;
-  }
-  prev_mode = mode;
-}
+//sends current temperature data and button setting to the website
 void sendTemp() {
   HTTPClient http;
   //CHANGE IP
@@ -219,11 +148,12 @@ void sendTemp() {
 
   //send temperature to website
   http.addHeader("Content-Type", "application/json");
-  int httpResponseCode = http.POST("{\"temperature\": " + String(temperature) + ", \"useTempControl\": " + String(useTempControl) + ", \"delayTime\": " + String(delay_time) + "}");
+  int httpResponseCode = http.POST("{\"temperature\": " + String(temperature) + ", \"useTempControl\": " + String(useTempControl) + ", \"delayTime\": " + String(delayTime) + "}");
 
   http.end();
 }
 
+//gets the current pattern selected on the website to update the LEDs accordingly
 void getPattern() {
   HTTPClient http;
   //CHANGE IP
@@ -241,10 +171,10 @@ void getPattern() {
       blink();
     }
     else if (buttonResponse == "Chase") {
-      chase_sequence();
+      chaseSequence();
     }
     else if (buttonResponse == "Off") {
-      all_off();
+      allOff();
     }
     else if (buttonResponse == "Red") {
       red();
@@ -268,40 +198,39 @@ void setup() {
     Serial.print(".");
     delay(500);
   }
-  //CHANGE IP
+
   Serial.println("Connected to WiFi");
   Serial.println("Server Address: http://192.168.240.251:5000/data");
   
   
-  // Initialize each pin as an output
+  //initialize each pin as an output
   for (int i = 0; i < NUM_LEDS; i++) {
     pinMode(ledPins[i], OUTPUT);
-    digitalWrite(ledPins[i], LOW); // Ensure all LEDs are off initially
+    digitalWrite(ledPins[i], LOW); //ensure all LEDs are off initially
   }
-  // Initialize button as an input
+  //initialize button as an input
   pinMode(BUTTON_PIN, INPUT_PULLUP);
-  mode = 0;
 
-  analogReadResolution(12); // 12-bit ADC
-  analogSetPinAttenuation(temp_pin, ADC_11db);
+  analogReadResolution(12); //12-bit ADC
+  analogSetPinAttenuation(tempPin, ADC_11db);
 
   //read initial temp for temp controll mode
-  int temp_val = analogRead(temp_pin);
-  volts = temp_val * VREF /ADC_MAX ;
-  volts = temp_val / 1023.0;
+  int tempValue = analogRead(tempPin);
+  float volts = tempValue * VREF /ADC_MAX ;
+  volts = tempValue / 1023.0;
 
-  initial_temp = (volts - 0.5) * 100.0 ;
+  initialTemp = (volts - 0.5) * 100.0 ;
 
   //this LED sequence lets you know the code is running
   //leds go red -> yellow -> green then off before loop starts
   red();
-  delay(delay_time);
+  delay(delayTime);
   yellow();
-  delay(delay_time);
+  delay(delayTime);
   green();
-  delay(delay_time);
-  all_off();
-  delay(delay_time);
+  delay(delayTime);
+  allOff();
+  delay(delayTime);
 
   Serial.print("Device IP address: ");
   Serial.println(WiFi.localIP());
@@ -314,6 +243,7 @@ void loop() {
   WiFiClient client;
   HTTPClient http;
 
+  //check if button is pressed to toggle temp control mode on/off
   if(digitalRead(BUTTON_PIN) == LOW) {
     Serial.printf("button is pressed");
     useTempControl = !useTempControl;
@@ -323,28 +253,18 @@ void loop() {
     tempControl();
   }
 
+  //if temp control mode is off, reset delay time to initial value
   if(!useTempControl) {
-    delay_time = initial_delay_time;
+    delayTime = initDelay;
   }
 
-  //CHANGE IP
-  //beggining connection to website
+  //begin connection to website
   http.begin(client, "http://192.168.240.251:5000/send_pattern");
+  //send current temperature data and button setting to website and get current pattern selected on website
   sendTemp();
   getPattern();
 
-  // Serial.print("broadcast IP address: ");
-  // Serial.println(WiFi.broadcastIP());
-  // Serial.print("dns IP address: ");
-  // Serial.println(WiFi.dnsIP());
-  // Serial.print("gateway IP address: "); 
-  // //amelia_hotspot wifi ipv4
-  // Serial.println(WiFi.gatewayIP());
-  // Serial.print("Mode: ");
-  // Serial.println(WiFi.getMode());
-
   Serial.print("delay: ");
-  Serial.println(delay_time);
-  delay(delay_time);
-
+  Serial.println(delayTime);
+  delay(delayTime);
 }

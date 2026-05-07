@@ -1,16 +1,12 @@
 from flask import Flask, render_template, request, jsonify
-import random
-import logging
-
-
-
 
 app = Flask(__name__)
 
-
+# initial state of pattern and button
 ButtonPressed = 0
 currentPattern= 'None'
 
+# display the pattern selected on the webpage and update the current pattern variable when a button is pressed
 @app.route('/', methods=['GET', 'POST'])
 def index():
     global currentPattern
@@ -49,13 +45,14 @@ def index():
             returnMessage = 'No valid button pressed'
     return render_template('site.html', message=returnMessage)
 
-data = {'temperature': [], 'useTempControl': False, 'delayTime': 200} # Example data#
+data = {'temperature': [], 'useTempControl': False, 'delayTime': 200}
 
-
+# send the pattern currently selected to the arduino when requested
 @app.route('/pattern', methods=['GET'])
 def send_pattern():
     return currentPattern
 
+# display current temperature data and button setting on the webpage
 @app.route('/data', methods=['POST'])
 def receive_data():
     try: 
