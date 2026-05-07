@@ -2,6 +2,7 @@
 #include <WiFiMulti.h>
 #include <HTTPClient.h>
 #include <ArduinoJson.h>
+#include <sys/socket.h>
 
 
 #define NUM_LEDS 6
@@ -11,6 +12,7 @@
 
 const char* SSID = "amelia_hotspot";
 const char* Password = "megan2003";
+const char* IpAddress = 
 
 //button pin
 const int BUTTON_PIN = 13;
